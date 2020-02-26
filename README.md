@@ -7,7 +7,10 @@
 An application to help store names of people you've met.
 
 ## Examples within this code
-...
+- UIImagePickerController
+- UUID
+- NSObject subclasses
+- fatalError()
 
 ## Demonstration
 ...
