@@ -16,6 +16,17 @@ class ViewController: UICollectionViewController {
         super.viewDidLoad()
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
+        
+        let defaults = UserDefaults.standard
+        
+        if let savedPeople = defaults.object(forKey: "people") as? Data {
+            let jsonDecoder = JSONDecoder()
+            do {
+                people = try jsonDecoder.decode([Person].self, from: savedPeople)
+            } catch {
+                print("Failed to load people.")
+            }
+        }
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -64,6 +75,7 @@ class ViewController: UICollectionViewController {
             ac.addAction(UIAlertAction(title: "Okay", style: .default, handler: { [weak self, weak ac] _ in
                 guard let newName = ac?.textFields?[0].text else { return }
                 person.name = newName
+                self?.save()
                 self?.collectionView.reloadData()
             }))
             
@@ -88,6 +100,17 @@ class ViewController: UICollectionViewController {
         
         present(ac, animated: true)
     }
+    
+    func save() {
+        let jsonEcoder = JSONEncoder()
+        
+        if let savedData = try? jsonEcoder.encode(people) {
+            let defaults = UserDefaults.standard
+            defaults.set(savedData, forKey: "people")
+        } else {
+            print("Failed to save people.")
+        }
+    }
 }
 
 extension ViewController: UIImagePickerControllerDelegate {
@@ -104,6 +127,7 @@ extension ViewController: UIImagePickerControllerDelegate {
         
         let person = Person(name: "Unkown", image: imageName)
         people.append(person)
+        save()
         collectionView.reloadData()
         
         dismiss(animated: true)
